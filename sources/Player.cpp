@@ -4,7 +4,8 @@ using std::move; using std::runtime_error;
 
 Player::Player(Game& game, string name, string role)
 : _game(game), _name(move(name)), _role(move(role)), _coins(0), _coup(false), _coupBlock(false), _steal_coins(0),
-_doubleIncomeBlock(false), _stealBlock(false), _curr_operation(State::UNINITIALIZED), _player_ptr(nullptr)
+_doubleIncomeBlock(false), _stealBlock(false), _curr_operation(State::UNINITIALIZED), _player_ptr(nullptr), _alive(true)
+, _assassin(false)
 {
     _game.addPlayer(_name);
 }
@@ -12,6 +13,8 @@ _doubleIncomeBlock(false), _stealBlock(false), _curr_operation(State::UNINITIALI
 void Player::income() {
     if (!isPlayerTurn()) {throw runtime_error("ERR: not player's turn!");}
     if (_coins >= LIMIT) {throw runtime_error("ERR: player has 10 coins and didn't perform coup.");}
+    if (_game.players().size() < MIN_PLAYERS_AMOUNT) {throw runtime_error("ERR: players amount is lower than 2.");}
+    if (!_game.started()) {_game.setGameStatus(true);}
     increase(1);
     _game.next_turn();
 }
@@ -19,6 +22,8 @@ void Player::income() {
 void Player::foreign_aid() {
     if (!isPlayerTurn()) {throw runtime_error("ERR: not player's turn!");}
     if (_coins >= LIMIT) {throw runtime_error("ERR: player has 10 coins and didn't perform coup.");}
+    if (_game.players().size() < MIN_PLAYERS_AMOUNT) {throw runtime_error("ERR: players amount is lower than 2.");}
+    if (!_game.started()) {_game.setGameStatus(true);}
     /*Set current operation to be double income*/
     _curr_operation = State::FOREIGN_AID;
     increase(2);
@@ -27,7 +32,9 @@ void Player::foreign_aid() {
 
 void Player::coup(Player& target) {
     if (!isPlayerTurn()) {throw runtime_error("ERR: not player's turn!");}
+
     _players = _game.players();
+    _assassin = false;
 
     /*Player is assassin*/
     if (_role == "Assassin"){
@@ -36,6 +43,7 @@ void Player::coup(Player& target) {
             return;
         }
         if (_coins >= ASSASSIN_COUP_CHARGE){ /* If he doesn't have 7 coins but 3, then coup is cost 3 coins instead of 7*/
+            _assassin = true;
             coupByCoins(target, ASSASSIN_COUP_CHARGE);
             return;
         }
@@ -51,6 +59,8 @@ void Player::coup(Player& target) {
 
 //Auxiliary method for the coup method.
 void Player::coupByCoins(Player &target, int coins) {
+    if (!isAlive()) {throw runtime_error("ERR: player has already couped, thus cannot coup!");}
+    if(!target.isAlive()) {throw runtime_error("ERR: player has already couped!");}
     _curr_operation = State::COUP;
     decrease(coins);
     _game.fixCurrPos(target._name);
@@ -59,7 +69,9 @@ void Player::coupByCoins(Player &target, int coins) {
         _game.setWinner(_name);
     }
     target.setCoup(true);
+    target._alive = false;
     target.setCoupPlayerName(_name);
+    _player_ptr = &target;
     _game.next_turn();
 }
 
@@ -142,4 +154,16 @@ Player& Player::getPlayer_ptr() {
 
 int Player::getStealAmount() const {
     return _steal_coins;
+}
+
+bool Player::isAlive() const{
+    return _alive;
+}
+
+void Player::setAlive(bool b){
+    _alive = b;
+}
+
+bool Player::isAssassinated() const{
+    return _assassin;
 }

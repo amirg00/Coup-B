@@ -6,6 +6,7 @@ using std::runtime_error;
 Game::Game() {
     _winner = "";
     _curr_turn = 0;
+    _game_started = false;
 }
 
 vector<string> Game::players() {
@@ -22,11 +23,14 @@ void Game::next_turn() {
 }
 
 string Game::winner() {
+    if (!_game_started) {throw runtime_error("ERR: can't find a winner yet!");}
     if (_players.size() > WINNER){throw runtime_error("ERR: can't find a winner yet!");}
     return _winner;
 }
 
 void Game::addPlayer(const string &name) {
+    if (_game_started) {throw runtime_error("ERR: can't find a winner yet!");}
+    if (_players.size() == MAX_PLAYERS_AMOUNT) {throw runtime_error("ERR: players amount has reached its limit.");}
     _players.push_back(name);
 }
 
@@ -49,6 +53,7 @@ void Game::fixCurrPos(const string &remPlayerName) {
  */
 void Game::fixCurrPosAdd(const string &addPlayerName) {
     int pos = findPlayerPos(addPlayerName);
+    cout << "name: " << addPlayerName << ", " << "position: " << pos << endl;
     if (pos < _curr_turn){_curr_turn++;}
 
 }
@@ -70,6 +75,14 @@ int Game::findPlayerPos(const string &PlayerName) {
 
 void Game::setWinner(const string& winnerName) {
     _winner = winnerName;
+}
+
+
+bool Game::started() const{
+    return _game_started;
+}
+void Game::setGameStatus(bool status){
+    _game_started = status;
 }
 
 

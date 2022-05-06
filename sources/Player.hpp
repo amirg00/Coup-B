@@ -1,10 +1,11 @@
 #pragma once
 #include "Game.hpp"
 
-#define LIMIT 10                    // 10 coins and above force player to coup.
+#define LIMIT 10                    // Coins limit - 10 coins and above force player to coup.
 #define COUP_CHARGE 7               // For regular players, coup is cost 7 coins.
 #define ASSASSIN_COUP_CHARGE 3      // For assassin player, coup can cost 3 coins.
 #define STEAL_CHARGE 2              // Steal is usually 2 coins.
+#define TRANSFER_CHARGE 1           // Transfer is cost 1 coins.
 
 namespace coup{
 
@@ -27,6 +28,8 @@ namespace coup{
         bool _doubleIncomeBlock;  /* Flag - indicates if player has been blocked for foreign_aid operation*/
         bool _stealBlock;         /* Flag - indicates if player has been blocked for steal operation*/
         bool _coupBlock;          /* Flag - indicates if player has been blocked for coup operation*/
+        bool _alive;              /* Flag - indicates if player is still alive or has couped*/
+        bool _assassin;           /* Flag - indicates if player has assassinated (3 coins operation)*/
         State _curr_operation;    /* States Player's latest operation, which can be blocked*/
         vector<string> _players;  /* Store previous order for players before coup is accomplished*/
         Player *_player_ptr;      /* Store player's reference in order to return anything after block*/
@@ -57,5 +60,8 @@ namespace coup{
         vector<string> getPlayers();
         Player& getPlayer_ptr();
         int getStealAmount() const;
+        bool isAlive() const;
+        void setAlive(bool b);
+        bool isAssassinated() const;
     };
 };

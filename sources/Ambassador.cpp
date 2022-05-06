@@ -10,8 +10,9 @@ Ambassador::Ambassador(Game& game, string name)
 void Ambassador::transfer(Player& from, Player& to) {
     if (!isPlayerTurn()) {throw runtime_error("ERR: not player's turn!");}
     if (_coins >= LIMIT) {throw runtime_error("ERR: player has 10 coins and didn't perform coup.");}
-    from.decrease(1);
-    to.increase(1);
+    if(from.coins() < TRANSFER_CHARGE) {throw runtime_error("ERR: player doesn't have enough money to transfer.");}
+    from.decrease(TRANSFER_CHARGE);
+    to.increase(TRANSFER_CHARGE);
     _game.next_turn();
 }
 

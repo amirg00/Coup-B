@@ -1,6 +1,8 @@
 #include "Game.hpp"
 using namespace coup;
 
+using std::runtime_error;
+
 Game::Game() {
     _winner = "";
     _curr_turn = 0;
@@ -20,6 +22,7 @@ void Game::next_turn() {
 }
 
 string Game::winner() {
+    if (_players.size() > WINNER){throw runtime_error("ERR: can't find a winner yet!");}
     return _winner;
 }
 

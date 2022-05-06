@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <iostream>
 
+#define WINNER 1
+
 using std::string; using std::vector; using std::remove; using std::cout; using std::endl; using std::transform;
 
 
